@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:edubee_app/config/app_config.dart';
+import 'package:flutter/foundation.dart';  // Import the config file
 import 'package:usb_serial/usb_serial.dart';
+
+import '../config/app_config.dart';
 
 class UsbController with ChangeNotifier {
   UsbPort? _port;
@@ -21,7 +22,9 @@ class UsbController with ChangeNotifier {
   Future<void> initUsb() async {
     List<UsbDevice> devices = await UsbSerial.listDevices();
     if (devices.isEmpty) {
-      if (kDebugMode) print("No USB devices found");
+      if (kDebugMode) {
+        print("No USB devices found");
+      }
       return;
     }
 
@@ -30,13 +33,14 @@ class UsbController with ChangeNotifier {
 
     bool openResult = await _port!.open();
     if (!openResult) {
-      if (kDebugMode) print("Failed to open port");
+      if (kDebugMode) {
+        print("Failed to open port");
+      }
       return;
     }
 
     await _port!.setDTR(true);
     await _port!.setRTS(true);
-
     _port!.setPortParameters(
       AppConfig.usbBaudRate,
       AppConfig.usbDataBits,
@@ -46,16 +50,16 @@ class UsbController with ChangeNotifier {
 
     _subscription = _port!.inputStream?.listen((data) {
       final message = String.fromCharCodes(data).trim();
-      if (kDebugMode) print("Received from USB: $message");
+      if (kDebugMode) {
+        print("Received from USB: $message");
+      }
 
       if (message.startsWith(AppConfig.usbMessagePrefix)) {
         final number = int.tryParse(message.replaceFirst(AppConfig.usbMessagePrefix, ""));
         if (number != null && (number == 1 || number == 2)) {
-          _answerController.add(number - 1);
+          _answerController.add(number - 1); // edu1 -> 0, edu2 -> 1
         }
       }
-    }, onError: (e) {
-      if (kDebugMode) print("USB stream error: $e");
     });
   }
 }

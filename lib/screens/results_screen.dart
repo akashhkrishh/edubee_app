@@ -12,15 +12,15 @@ class ResultsScreen extends StatelessWidget {
 
   String _getPerformanceMessage(double percentage) {
     if (percentage >= 90) {
-      return 'Outstanding! 🌟';
+      return 'Outstanding! 検';
     } else if (percentage >= 80) {
-      return 'Great Job! 🎉';
+      return 'Great Job! 脂';
     } else if (percentage >= 70) {
-      return 'Well Done! 👏';
+      return 'Well Done! 聡';
     } else if (percentage >= 60) {
-      return 'Good Effort! 💪';
+      return 'Good Effort! 潮';
     } else {
-      return 'Keep Practicing! 📚';
+      return 'Keep Practicing! 答';
     }
   }
 

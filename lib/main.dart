@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:edubee_app/controllers/usb_controller.dart';
+import 'package:edubee_app/providers/music_policy_provider.dart'; // Import new provider
 import 'package:edubee_app/providers/settings_provider.dart';
 import 'package:edubee_app/screens/home_screen.dart';
 import 'package:edubee_app/services/background_music_service.dart';
@@ -15,17 +16,21 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
+  // Create instances of all providers
   final settingsProvider = SettingsProvider();
   await settingsProvider.init();
 
   final usbController = UsbController();
   await usbController.initUsb();
 
+  final musicPolicyProvider = MusicPolicyProvider();
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => settingsProvider),
-        ChangeNotifierProvider(create: (context) => usbController),
+        ChangeNotifierProvider.value(value: settingsProvider),
+        ChangeNotifierProvider.value(value: usbController),
+        ChangeNotifierProvider.value(value: musicPolicyProvider), // Add new provider
       ],
       child: const MyApp(),
     ),
@@ -40,6 +45,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final BackgroundMusicService _musicService = BackgroundMusicService();
+
   @override
   void initState() {
     super.initState();
@@ -56,17 +63,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-    final musicService = BackgroundMusicService();
+    // Get the music policy provider
+    final musicPolicy = Provider.of<MusicPolicyProvider>(context, listen: false);
 
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
-        musicService.pauseBackgroundMusic();
+        _musicService.stopBackgroundMusic();
         break;
       case AppLifecycleState.resumed:
-        if (settingsProvider.isMusicEnabled) {
-          musicService.resumeBackgroundMusic();
+      // FIXED: Check both settings AND the policy before playing music.
+        if (settingsProvider.isMusicEnabled && musicPolicy.isMusicAllowed) {
+          _musicService.playBackgroundMusic();
         }
         break;
       default:
@@ -76,6 +85,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // ... build method is unchanged
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
@@ -83,24 +93,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           title: 'Edubee',
           theme: ThemeData(
             brightness: Brightness.light,
-            primarySwatch: Colors.blue,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
             visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: Theme.of(context).textTheme.apply(
-              fontSizeFactor: settings.fontScale,
-            ),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
-            primarySwatch: Colors.blue,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: Theme.of(context).textTheme.apply(
-              fontSizeFactor: settings.fontScale,
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
             ),
+            useMaterial3: true,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
           themeMode: settings.themeMode,
           home: const HomeScreen(),
+          builder: (context, widget) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(settings.fontScale),
+              ),
+              child: widget!,
+            );
+          },
         );
       },
     );

@@ -13,7 +13,7 @@ class SettingsProvider with ChangeNotifier {
   final BackgroundMusicService _musicService = BackgroundMusicService();
 
   ThemeMode _themeMode = ThemeMode.system;
-  double _fontScale = 1.0;
+  double _fontScale = 0.8;
   bool _isMusicEnabled = true;
   bool _isSfxEnabled = true;
 
@@ -33,7 +33,7 @@ class SettingsProvider with ChangeNotifier {
           orElse: () => ThemeMode.system,
         );
       }
-      _fontScale = _prefs.getDouble(_fontScaleKey) ?? 1.0;
+      _fontScale = _prefs.getDouble(_fontScaleKey) ?? 0.8;
       _isMusicEnabled = _prefs.getBool(_isMusicEnabledKey) ?? true;
       _isSfxEnabled = _prefs.getBool(_isSfxEnabledKey) ?? true;
       _isInitialized = true;
@@ -44,7 +44,7 @@ class SettingsProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('Error initializing SharedPreferences: $e');
       _themeMode = ThemeMode.system;
-      _fontScale = 1.0;
+      _fontScale = 0.8;
       _isMusicEnabled = true;
       _isSfxEnabled = true;
       _isInitialized = true;

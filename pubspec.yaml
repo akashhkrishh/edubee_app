@@ -1,36 +1,51 @@
 name: edubee_app
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.0
+  sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  provider: ^6.1.5+1
-  video_player: ^2.10.0
-  usb_serial: ^0.5.2
-  get: ^4.7.2
+  # Core Packages
+  flutter_riverpod: ^3.0.3
+  get_it: ^8.2.0
   shared_preferences: ^2.5.3
-  audioplayers: ^6.5.1
+
+  # Other utilities
+  audioplayers: ^6.0.0
+  video_player: ^2.8.6
+  usb_serial: ^0.5.2
+  cupertino_icons: ^1.0.8
+  equatable: ^2.0.7
+  path_provider: ^2.1.5
+  riverpod_annotation: ^3.0.3
+  provider: ^6.1.5+1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.9
 
-  flutter_lints: ^6.0.0
+
+# Launcher icon config (root level)
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_logo.png"
 
 flutter:
-
   uses-material-design: true
 
   assets:
     - assets/
+    - assets/icons/app_logo.png
     - assets/audio/
     - assets/images/
     - assets/videos/
