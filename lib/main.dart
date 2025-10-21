@@ -85,7 +85,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // ... build method is unchanged
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
